@@ -1,0 +1,5 @@
+[2Kcgi-bin/                [Status: 403, Size: 285, Words: 21, Lines: 11, Duration: 6ms][0m
+[2Kforum                   [Status: 301, Size: 306, Words: 20, Lines: 10, Duration: 1ms][0m
+[2Kphpmyadmin              [Status: 301, Size: 311, Words: 20, Lines: 10, Duration: 2ms][0m
+[2Kserver-status           [Status: 403, Size: 290, Words: 21, Lines: 11, Duration: 0ms][0m
+[2Kwebmail                 [Status: 301, Size: 308, Words: 20, Lines: 10, Duration: 1ms][0m

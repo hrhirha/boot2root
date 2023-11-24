@@ -1,0 +1,10 @@
+# Nmap 7.94 scan initiated Wed Nov 15 15:02:51 2023 as: nmap -sn -o nmap/ping-sweep.txt 192.168.0.0/24
+Nmap scan report for 192.168.0.1
+Host is up (0.00046s latency).
+Nmap scan report for 192.168.0.2
+Host is up (0.00066s latency).
+Nmap scan report for 192.168.0.5
+Host is up (0.00014s latency).
+Nmap scan report for 192.168.0.6
+Host is up (0.00068s latency).
+# Nmap done at Wed Nov 15 15:02:54 2023 -- 256 IP addresses (4 hosts up) scanned in 3.27 seconds
