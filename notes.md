@@ -217,9 +217,11 @@ Logged in as `laurie` using SSH with the password: `330b845f32185747e4f8ca15d40c
 
 reversing `bomb`
 
-phase_1: 'Public speaking is very easy.'  
-phase_2: 1 2 6 24 120 720  
-phase_3: 1 b 214  
-phase_4: 9  
-phase_5:  
-phase_6:  
+```
+Public speaking is very easy.
+1 2 6 24 120 720
+1 b 214
+9  
+o0ekma
+1 2 3 4 5 6
+```  
