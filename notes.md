@@ -221,7 +221,9 @@ reversing `bomb`
 Public speaking is very easy.
 1 2 6 24 120 720
 1 b 214
-9  
-o0ekma
+9
+opekmq
 4 2 6 3 1 5
-```  
+```
+
+The password is : `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
