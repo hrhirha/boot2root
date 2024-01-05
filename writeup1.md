@@ -196,20 +196,7 @@ int main() {
 }
 ```
 
-Extracted the password for `laurie` using this script
-
-```bash
-#!/bin/bash
-
-for i in `seq 1 3`
-do
-        for f in `ls loot/ft_fun/*.pcap`
-        do
-                cat $f
-                echo " $f"
-        done | egrep "file[0-9]{$i}\s" | sort | cut -d ' ' -f2 | xargs cat | egrep -o 'return.*'
-done | cut -d "'" -f 2 | tr -d '\n' | sha256sum
-```
+Extracted the password for `laurie` using [extract_pass.sh](scripts/extract_pass.py)
 
 Logged in as `laurie` using SSH with the password: `330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4`
 
@@ -225,5 +212,12 @@ Public speaking is very easy.
 opekmq
 4 2 6 3 1 5
 ```
+[phase_5.py](scripts/phase_5.py) helped solving phase_5.
 
 The password is : `Publicspeakingisveryeasy.126241207201b2149opekmq426135`
+
+**thor -> zaz**
+
+Used python module `turtle` with the instructions described in `turtle` file, and got a drawing of the word `SLASH`
+
+[turtle-solve](scripts/turtle-solve.py)
