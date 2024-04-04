@@ -17,7 +17,7 @@ Host is up (0.00068s latency).
 After identifying the target ip, we scaned it for open ports
 
 ```
-$ nmap 192.168.0.6
+$ nmap -sV 192.168.0.6
 ...
 21/tcp  open  ftp      vsftpd 2.0.8 or later
 22/tcp  open  ssh      OpenSSH 5.9p1 Debian 5ubuntu1.7 (Ubuntu Linux; protocol 2.0)
