@@ -262,8 +262,7 @@ Then it checks that the first number is 1, if not `explode_bomb` is called and t
 0x08048b67 <+31>:    je     0x8048b6e <phase_2+38>
 0x08048b69 <+33>:    call   0x80494fc <explode_bomb>
 ```
-after that it enters a loop, and checks that the product of each number `esi+ebx*4-0x4` with the index
-of the next `ebx+0x1` equals the next number `esi+ebx*4`.
+After that it checks that each number `esi+ebx*4` equals the product of its index `ebx+0x1` and the previous number `esi+ebx*4-0x4`.
 
 > Note: indexes start at 1
 
