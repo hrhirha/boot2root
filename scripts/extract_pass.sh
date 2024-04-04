@@ -2,7 +2,7 @@
 
 for i in `seq 1 3`
 do
-	for f in `ls loot/ft_fun/*.pcap`
+	for f in `ls ft_fun/*.pcap`
 	do
 		cat $f
 		echo " $f"
